@@ -1,34 +1,45 @@
 class Game {
   constructor(container) {
     this.container = container;
-    this.wordElement = container.querySelector('.word');
-    this.winsElement = container.querySelector('.status__wins');
-    this.lossElement = container.querySelector('.status__loss');
+    this.symbolWord = container.querySelector('.word');
+    this.winAmount = container.querySelector('.status__wins');
+    this.lossAmount = container.querySelector('.status__loss');
+    this.timerEl = container.querySelector('.timer');
 
     this.reset();
 
-    this.registerEvents();
+    this.statusGame();
   }
 
   reset() {
-    this.setNewWord();
-    this.winsElement.textContent = 0;
-    this.lossElement.textContent = 0;
+    this.chooseWord();
+    this.winAmount.textContent = 0;
+    this.lossAmount.textContent = 0;
   }
 
-  registerEvents() {
-    /*
-      TODO:
-      Написать обработчик события, который откликается
-      на каждый введённый символ.
-      В случае правильного ввода символа вызываем this.success()
-      При неправильном вводе символа - this.fail();
-      DOM-элемент текущего символа находится в свойстве this.currentSymbol.
-     */
+  statusGame() {
+    setInterval(() => {
+      this.symbolLength -= 1;
+      this.timerEl.textContent = this.symbolLength;
+      if (this.symbolLength === 0) {
+        this.lose();
+      }
+    }, 1000);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.shiftKey || event.altKey) {
+        return;
+      }
+      if (event.key === this.currentSymbol.textContent) {
+        this.win();
+      } else {
+        this.lose();
+      }
+    });
   }
 
-  success() {
-    if(this.currentSymbol.classList.contains("symbol_current")) this.currentSymbol.classList.remove("symbol_current");
+  win() {
+    if (this.currentSymbol.classList.contains('symbol_current')) this.currentSymbol.classList.remove('symbol_current');
     this.currentSymbol.classList.add('symbol_correct');
     this.currentSymbol = this.currentSymbol.nextElementSibling;
 
@@ -37,30 +48,25 @@ class Game {
       return;
     }
 
-    if (++this.winsElement.textContent === 10) {
-      alert('Победа!');
+    if (++this.winAmount.textContent === 10) {
+      alert('Вы выйграли!');
       this.reset();
-    }
-    this.setNewWord();
+    };
+    this.chooseWord();
+
   }
 
-  fail() {
-    if (++this.lossElement.textContent === 5) {
+  lose() {
+    if (++this.lossAmount.textContent === 5) {
       alert('Вы проиграли!');
       this.reset();
-    }
-    this.setNewWord();
-  }
-
-  setNewWord() {
-    const word = this.getWord();
-
-    this.renderWord(word);
+    };
+    this.chooseWord();
   }
 
   getWord() {
     const words = [
-        'bob',
+        'я люблю kitkat',
         'awesome',
         'netology',
         'hello',
@@ -72,23 +78,23 @@ class Game {
         'love',
         'javascript'
       ],
-      index = Math.floor(Math.random() * words.length);
-
+    index = Math.floor(Math.random() * words.length);
     return words[index];
   }
 
-  renderWord(word) {
-    const html = [...word]
-      .map(
-        (s, i) =>
-          `<span class="symbol ${i === 0 ? 'symbol_current': ''}">${s}</span>`
-      )
-      .join('');
-    this.wordElement.innerHTML = html;
+  chooseWord() {
+    const word = this.getWord();
+    this.reloadWord(word);
+  }
 
-    this.currentSymbol = this.wordElement.querySelector('.symbol_current');
+  reloadWord(word) {
+    const html = [...word].map((s, i) =>
+      `<span class="symbol${i === 0 ? ' symbol_current' : ''}">${s}</span>`
+    ).join('');
+    this.symbolWord.innerHTML = html;
+    this.currentSymbol = this.symbolWord.querySelector('.symbol_current');
+    this.symbolLength = word.length;
   }
 }
 
 new Game(document.getElementById('game'))
-

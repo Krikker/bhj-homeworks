@@ -9,3 +9,12 @@ body {
 .poll__title {
   margin-bottom: 20px;
 }
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome__actions {
+  margin-top: 50%;
+}
